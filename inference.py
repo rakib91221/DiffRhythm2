@@ -17,6 +17,7 @@ import torchaudio
 import argparse
 import json
 import os
+import re
 from tqdm import tqdm
 import random
 import pedalboard
@@ -124,19 +125,32 @@ def prepare_model(repo_id, device):
     return diffrhythm2, mulan, lrc_tokenizer, decoder
 
 
+STRUCT_PATTERN = re.compile(r'^\[.*?\]$')
+    
 def parse_lyrics(lyrics: str):
     lyrics_with_time = []
     lyrics = lyrics.split("\n")
+    get_start = False
     for line in lyrics:
-        struct_idx = STRUCT_INFO.get(line, None)
-        if struct_idx is not None:
-            lyrics_with_time.append([struct_idx, STRUCT_INFO['[stop]']])
+        line = line.strip()
+        if not line:
+            continue
+        struct_flag = STRUCT_PATTERN.match(line)
+        if struct_flag:
+            struct_idx = STRUCT_INFO.get(line.lower(), None)
+            if struct_idx is not None:
+                if struct_idx == STRUCT_INFO['[start]']:
+                    get_start = True
+                lyrics_with_time.append([struct_idx, STRUCT_INFO['[stop]']])
+            else:
+                continue
         else:
             tokens = lrc_tokenizer.encode(line.strip())
             tokens = tokens + [STRUCT_INFO['[stop]']]
             lyrics_with_time.append(tokens)
+    if len(lyrics_with_time) != 0 and not get_start:
+        lyrics_with_time = [[STRUCT_INFO['[start]'], STRUCT_INFO['[stop]']]] + lyrics_with_time
     return lyrics_with_time
-
 
 def make_fake_stereo(audio, sampling_rate):
     left_channel = audio
