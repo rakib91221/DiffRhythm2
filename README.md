@@ -98,7 +98,7 @@ DiffRhythm 2 enables the creation of original music across diverse genres, suppo
 
 ## Citation
 ```
-@article{jiang2025diffrhythm,
+@article{diffrhythm2,
   title={DiffRhythm 2: Efficient and High Fidelity Song Generation via Block Flow Matching},
   author={Jiang, Yuepeng and Chen, Huakang and Ning, Ziqian and Yao, Jixun and Han, Zerui and Wu, Di and Meng, Meng and Luan, Jian and Fu, Zhonghua and Xie, Lei},
   journal={arXiv preprint arXiv:2510.22950},
